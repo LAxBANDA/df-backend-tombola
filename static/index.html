@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <div id="v-app">
+        <template v-if="pageLoad">
+            Cargando app...
+        </template>
+        <template v-else-if="logged">
+            <h1>Usuario: {{user.email}}</h1>
+            <h1>Creditos: {{user.credit}}</h1>
+            <h1>Fecha de último ingreso: {{new Date(user.last_connection).toLocaleString()}}</h1>
+    
+            <button :disabled="loading || user.credit < 1" @click.stop="playTombola(1)">
+                {{ !loading ? 'Tirar tómbola 1 credito' : 'Girando la tombola...'}}
+            </button>
+            <button :disabled="loading || user.credit < 2" @click.stop="playTombola(2)">
+                {{ !loading ? 'Tirar tómbola por 2 creditos' : 'Girando la tombola...'}}
+            </button>
+            <br>
+            <br>
+            <button style="background:red;color:white" @click.stop="logout">Cerrar sesión</button>
+        </template>
+        <template v-else>
+            <form action="submit" method="post" @submit.prevent="login">
+                <input type="email" placeholder="Ingresa tu correo" name="email" id="email" v-model="inputEmail">
+                <input type="password" placeholder="Ingresa tu contraseña" name="password" id="password" v-model="inputPassword">
+                <button type="submit" :disabled="!inputPassword || !inputEmail">Ingresar</button>
+            </form>
+        </template>
+    </div>
+
+    <script>
+    var app = new Vue({
+        el: '#v-app',
+        data: {
+            socket: null,
+            credits: 0,
+            user: {},
+            loading: false,
+            logged: false,
+            inputEmail: '',
+            inputPassword: '',
+            pageLoad: true,
+        },
+       async created(){
+            this.socket = await io('http://localhost:7000');
+            console.log('asjkdasj')
+
+            await this.socket.on('userConnected', (user) =>{
+                console.log(user)
+                this.user = user
+                this.logged = true
+            })
+
+            this.pageLoad = false;
+        },
+        methods: {
+            async playTombola(credits){
+                this.loading = true
+                await setTimeout(async () => {
+                    try {
+                        const { data } = await axios.get('http://localhost:7000/api/reward/playtombola?credits='+credits)
+                        window.alert('Felicitades, '+ data.win)
+                        this.user.credit = data.credits
+                    } catch (error) {
+                        console.log(error.response.data.error)
+                        window.alert(error.response.data.error)
+                    } finally{
+                        this.loading = false
+                    }
+                }, 3000.0);
+            },
+            async logout(){
+                console.log(document.cookie)
+                try {
+                    await axios.post('http://localhost:7000/api/auth/logout')
+                    this.logged = false
+                } catch (error) {
+                    
+                }
+            },
+            async login(){
+                console.log('login')
+                try {
+                    const { data: token } = await axios.post('http://localhost:7000/api/auth/login', {
+                        username: this.inputEmail,
+                        password: this.inputPassword
+                    })
+                    console.log(token)
+                    const response = await axios.get('http://localhost:7000/api/user/profile')
+                    this.user = response.data;
+                    console.log(this.user)
+                    this.logged = true
+                } catch (error) {
+                    
+                }
+            }
+        }
+    })
+    </script>
+</body>
+</html>
+
