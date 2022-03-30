@@ -1,0 +1,11 @@
+services:
+  production:
+    # build: 
+    #   target: production
+    command: npm run start
+  development:
+    # build: 
+    #   target: development # si queremos indicar un target en el Containerfile, el target se sería el "AS" que viene despues del "FROM" de la image
+    command: npm run start:dev
+    volumes: 
+      - /src:/usr/src/app/src

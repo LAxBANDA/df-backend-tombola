@@ -20,7 +20,7 @@ export class RewardService {
     }
 
     const rewardAmount = Number(this.configService.get<number>('global.rewardAmount'))
-    const { credit } = await this.userService.setCredits(user.email, user.credit || 0 + rewardAmount)
+    const { credit } = await this.userService.setCredits(user.email, (user.credit || 0) + rewardAmount)
     
     return credit;
   }

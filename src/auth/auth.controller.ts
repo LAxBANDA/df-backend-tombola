@@ -12,8 +12,9 @@ export class AuthController {
   @Post('login')
   async login(@Req() request: Request, @Res() response: Response) {
     const JWT_TOKEN_EXPIRES = 1; // 1 dia
-    console.log('login xd')
+
     const token = await this.authService.login(request.user);
+
     return response.cookie('access_token', token, {
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * JWT_TOKEN_EXPIRES),
@@ -24,9 +25,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() request: Request, @Res() response: Response) {
-    console.log('logout xd')
-
     const token = await this.authService.login(request.user);
+    
     return response.cookie('access_token', token, {
       httpOnly: true,
       expires: new Date(Date.now()),

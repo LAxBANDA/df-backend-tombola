@@ -38,8 +38,6 @@ export class UserService {
    * @returns {User} el objeto del nuevo usuario en la base de datos
    */
    async register(userData: User): Promise<User | null> {
-    console.log("[Operación]: creando usuario");
-
     const user = await this.findUserByEmail(userData.email);
 
     if (user) {

@@ -53,7 +53,6 @@
         },
        async created(){
             this.socket = await io('http://localhost:7000');
-            console.log('asjkdasj')
 
             await this.socket.on('userConnected', (user) =>{
                 console.log(user)
@@ -72,7 +71,6 @@
                         window.alert('Felicitades, '+ data.win)
                         this.user.credit = data.credits
                     } catch (error) {
-                        console.log(error.response.data.error)
                         window.alert(error.response.data.error)
                     } finally{
                         this.loading = false
@@ -80,7 +78,6 @@
                 }, 3000.0);
             },
             async logout(){
-                console.log(document.cookie)
                 try {
                     await axios.post('http://localhost:7000/api/auth/logout')
                     this.logged = false
@@ -95,13 +92,11 @@
                         username: this.inputEmail,
                         password: this.inputPassword
                     })
-                    console.log(token)
                     const response = await axios.get('http://localhost:7000/api/user/profile')
                     this.user = response.data;
-                    console.log(this.user)
                     this.logged = true
                 } catch (error) {
-                    
+                    window.alert(error.response.data.message)
                 }
             }
         }

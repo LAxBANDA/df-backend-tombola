@@ -18,13 +18,12 @@ export class RewardController {
 
     credits = typeof credits === 'string' ? Number(credits) : credits
 
-    const newCredtis = credit - credits;
-
-    if(!newCredtis){
+    const newCredits = credit - credits
+    if(newCredits < 0){
       throw new HttpException({ status: HttpStatus.FORBIDDEN, error: 'No tienes creditos suficientes para girar esta tombola'}, HttpStatus.FORBIDDEN) 
     }
 
-    await this.userService.setCredits(req.user.username, newCredtis)
-    return { win: win, credits: newCredtis}
+    await this.userService.setCredits(req.user.username, newCredits)
+    return { win: win, credits: newCredits}
   }
 }

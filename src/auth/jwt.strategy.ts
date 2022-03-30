@@ -10,7 +10,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: (req: Request) => {
         let data = req?.cookies?.access_token;
-        console.log('jwt token', data)
         if(!data){
             return null;
         }
@@ -23,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log('validate jwt.strategy', payload)
     return { username: payload.username };
   }
 }
